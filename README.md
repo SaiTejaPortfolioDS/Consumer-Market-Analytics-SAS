@@ -46,7 +46,7 @@ This project mirrors real-world CPG (Consumer Packaged Goods) analytics workflow
 
 Uses the **log-log regression** framework — the industry standard for constant elasticity estimation:
 
-> ln(Units) = β₀ + β₁·ln(Price) + controls + ε  
+> ln(Units) = β₀ + β₁·ln(Price) + controls + ε
 > **Interpretation:** β₁ = price elasticity of demand
 
 | Model | Specification |
@@ -85,3 +85,55 @@ Sample data included in `data/consumer_market_data.csv` (500 records, 4-year spa
 ---
 
 ## File Structure
+
+```
+Consumer-Market-Analytics-SAS/
+├── Consumer_Market_Analytics.sas   ← Main SAS program (7 sections)
+├── data/
+│   └── consumer_market_data.csv    ← Sample dataset (500 records)
+├── output/                         ← Export destination for results
+└── README.md
+```
+
+---
+
+## How to Run
+
+**Option 1 — SAS Studio (free, browser-based):**
+1. Go to [SAS Studio via SAS OnDemand](https://welcome.oda.sas.com/)
+2. Upload `Consumer_Market_Analytics.sas` and the `data/` folder
+3. Open the `.sas` file and click Run
+
+**Option 2 — SAS University Edition / Base SAS:**
+```sas
+/* Update file paths at top of program if needed, then submit */
+%include "Consumer_Market_Analytics.sas";
+```
+
+---
+
+## Tech Stack
+
+| Tool | Purpose |
+|------|---------|
+| `PROC IMPORT` | CSV data ingestion |
+| `PROC MEANS` / `PROC UNIVARIATE` | Descriptive statistics, normality tests |
+| `PROC TTEST` | One- and two-sample t-tests, paired t-tests |
+| `PROC ANOVA` | One-way ANOVA with Tukey HSD post-hoc |
+| `PROC FREQ` | Chi-square tests, cross-tabulations |
+| `PROC NPAR1WAY` | Non-parametric Wilcoxon rank-sum test |
+| `PROC CORR` | Pearson/Spearman correlation with significance |
+| `PROC REG` | OLS regression, elasticity modeling, VIF diagnostics |
+| `PROC LOGISTIC` | Binary logistic regression, odds ratios |
+| `PROC SGPLOT` | Time series and trend visualizations |
+| `PROC EXPAND` | Lag computation for YoY growth |
+
+---
+
+## Author
+
+**Mohan Venkata Pavan Sai Teja Kattiboyina**
+MS Business Analytics & AI — University of Texas at Dallas
+
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-0A66C2?logo=linkedin)](https://www.linkedin.com/in/saitejakmvp/)
+[![Portfolio](https://img.shields.io/badge/Portfolio-saitejaportfolio.com-00897B)](https://saitejaportfolio.com)
