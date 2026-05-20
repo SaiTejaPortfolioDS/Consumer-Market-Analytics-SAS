@@ -1,121 +1,87 @@
-# Conagra Brands — Meat Substitute Market Analysis
+# Consumer Market Analytics — SAS Statistical Programming
 
-[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/SaiTejaPortfolioDS/Conagra-Brands-Meat-Substitute-Analysis/blob/main/Conagra_Meat_Substitute_Sales_Analysis.ipynb)
-![Python](https://img.shields.io/badge/Python-3.10-blue?logo=python)
-![scikit-learn](https://img.shields.io/badge/scikit--learn-1.3-orange?logo=scikit-learn)
-![Jupyter](https://img.shields.io/badge/Jupyter-Notebook-F37626?logo=jupyter)
+![SAS](https://img.shields.io/badge/SAS-Statistical%20Programming-0076A8)
+![Domain](https://img.shields.io/badge/Domain-Consumer%20Market%20Analytics-orange)
+![Experiments](https://img.shields.io/badge/Experiments-11%20Hypothesis%20Tests-green)
+![Dataset](https://img.shields.io/badge/Dataset-4%20Year%20%2450B%20Market-lightgrey)
 
-## Business Problem
+## Overview
 
-Conagra competes in the fast-growing meat substitute category (projected **$15B globally by 2027**). The goal of this analysis is to answer two commercial questions:
+A comprehensive SAS statistical programming project analyzing a 4-year, $50B consumer market dataset across **11 hypothesis testing experiments** and a suite of **price elasticity regression models**. The program covers the full analytical pipeline — from data ingestion and EDA through probabilistic analysis, multivariate regression, and time series trending.
 
-1. **Which product attributes and promotional levers drive the most unit sales?**
-2. **Where does the Gardein brand have untapped competitive whitespace?**
+This project mirrors real-world CPG (Consumer Packaged Goods) analytics workflows used by firms like Nielsen, IRI, and major retail chains.
 
-Answering these with statistical rigor — rather than intuition alone — gives category managers a prioritized, defensible action list.
+---
 
-## Approach
+## Analytical Sections
 
-```
-Raw Retail Data
-    │
-    ▼
-Exploratory Analysis ──► Brand share · Flavor gaps · Season × Promo patterns
-    │
-    ▼
-Feature Engineering ──► One-hot encoding · % Merch lift · Flavor × Season interactions
-    │
-    ▼
-Regularized Regression ──► ElasticNet CV  ┐
-                            Lasso CV      ┘ ─► Ranked feature coefficients
-    │
-    ▼
-Business Recommendations
-```
+### 1. Data Ingestion & Feature Engineering
+- PROC IMPORT for raw CSV ingestion
+- Derived variables: log-transformed price/revenue, price ratio (own/competitor), promotional flag, peak season indicator, revenue per unit
+- Date parsing and quarter/year extraction
 
-## Key Findings
+### 2. Exploratory Data Analysis
+- Annual revenue and unit sales summaries (PROC MEANS, PROC TABULATE)
+- Normality testing — Shapiro-Wilk test on raw and log-transformed revenue (PROC UNIVARIATE)
+- Histogram and Q-Q plots for distributional assessment
+- Pearson and Spearman correlation matrix across 7 key variables
 
-| Driver | Direction | Business Implication |
-|--------|-----------|----------------------|
-| Feature & Display co-activation | ↑ Positive | Highest promo ROI — prioritize joint campaigns |
-| Flavor × Season interactions | ↑ Positive | Align assortment to peak flavor-season combos |
-| Pack size (`total_ounces`) | ↑ Positive | Multi-pack SKUs capture volume-buying occasions |
-| Gardein flavor whitespace (BEEF, CHICKEN) | Opportunity | SKU expansion into top-performing flavors |
+### 3. Hypothesis Testing — 11 Experiments
 
-## Methodology
+| # | Test | Question | Procedure |
+|---|------|----------|-----------|
+| 1 | Two-sample t-test (one-sided) | Do promoted products earn higher revenue? | PROC TTEST |
+| 2 | Two-sample t-test (one-sided) | Does peak season drive higher unit sales? | PROC TTEST |
+| 3 | One-way ANOVA + Tukey HSD | Revenue differs across product categories? | PROC ANOVA |
+| 4 | One-way ANOVA + Tukey HSD | Revenue differs across years? | PROC ANOVA |
+| 5 | Chi-square test | Promo flag independent of peak season? | PROC FREQ |
+| 6 | Wilcoxon rank-sum (non-parametric) | Promo vs. no-promo revenue (non-normal) | PROC NPAR1WAY |
+| 7 | Paired t-test | Own price vs. competitor price — significant gap? | PROC TTEST |
+| 8 | Pearson correlation significance | Promotion spend vs. revenue relationship | PROC CORR |
+| 9 | One-way ANOVA + Tukey HSD | Market share differs by quarter? | PROC ANOVA |
+| 10 | Two-sample t-test | Market share: high vs. low price ratio | PROC TTEST |
+| 11 | F-test | Revenue variance across product lines | PROC ANOVA |
 
-| Step | Details |
-|------|---------|
-| **EDA** | Brand share (pie), flavor ranking, Gardein gap analysis, season × promo heatmap |
-| **Preprocessing** | `StandardScaler` fit exclusively on training data — prevents leakage |
-| **Encoding** | `pd.get_dummies` on `season`, `category`, `sub_category`, `flavor`, `form` |
-| **Interactions** | Flavor × season and season × promo cross-features |
-| **Models** | `ElasticNetCV` (L1 + L2) and `LassoCV` (L1), both with 5-fold CV alpha selection |
-| **Evaluation** | Train R², Test R², Adjusted R² on 80/20 hold-out |
-| **Interpretability** | Coefficient ranking — non-zero Lasso coefficients = minimal sufficient feature set |
+### 4. Price Elasticity Modeling
 
-## Tech Stack
+Uses the **log-log regression** framework — the industry standard for constant elasticity estimation:
 
-| Library | Version | Purpose |
-|---------|---------|---------|
-| `pandas` | ≥ 2.0 | Data manipulation |
-| `numpy` | ≥ 1.24 | Numerical operations |
-| `scikit-learn` | ≥ 1.3 | Pipelines, scaling, Lasso/ElasticNet |
-| `matplotlib` | ≥ 3.7 | Visualizations |
-| `seaborn` | ≥ 0.12 | Statistical plots |
-| `openpyxl` | ≥ 3.1 | Reading Excel source files |
-| `jupyter` | ≥ 1.0 | Interactive notebook environment |
+> ln(Units) = β₀ + β₁·ln(Price) + controls + ε  
+> **Interpretation:** β₁ = price elasticity of demand
 
-## Project Structure
+| Model | Specification |
+|-------|--------------|
+| Simple elasticity | log_units ~ log_price |
+| Full model | log_units ~ log_price + promotion_spend + price_ratio + peak_season + promo_flag |
+| By-category | Separate regressions per product category |
+| Cross-price elasticity | log_units ~ log_price + log(competitor_price) + controls |
 
-```
-Conagra-Brands-Meat-Substitute-Analysis/
-├── Conagra_Meat_Substitute_Sales_Analysis.ipynb   ← main analysis notebook
-├── data/                                           ← place input files here (not tracked)
-│   ├── Top_5_Meat_Substitute_With_Category_Info.xlsx
-│   ├── One_Hot_Encoded_File.csv
-│   └── Final Data.csv
-├── requirements.txt
-└── README.md
-```
+Includes VIF diagnostics (multicollinearity), confidence intervals, and residual normality checks.
 
-## Setup & Reproduction
+### 5. Logistic Regression — Promotion Response
+Predicts whether a product achieves above-median market share using price, promotions, competition, and seasonality as predictors. Outputs odds ratios with Wald confidence intervals.
 
-```bash
-# 1. Clone
-git clone https://github.com/SaiTejaPortfolioDS/Conagra-Brands-Meat-Substitute-Analysis.git
-cd Conagra-Brands-Meat-Substitute-Analysis
+### 6. Time Series — Revenue Trend
+Quarterly revenue aggregation, year-over-year growth calculation, and trend visualization via PROC SGPLOT and PROC EXPAND.
 
-# 2. Create & activate virtual environment
-python -m venv .venv
-source .venv/bin/activate        # macOS / Linux
-# .venv\Scripts\activate         # Windows
+---
 
-# 3. Install dependencies
-pip install -r requirements.txt
+## Dataset
 
-# 4. Add data files to ./data/  (see Project Structure above)
+Sample data included in `data/consumer_market_data.csv` (500 records, 4-year span).
 
-# 5. Launch notebook
-jupyter notebook Conagra_Meat_Substitute_Sales_Analysis.ipynb
-```
+| Column | Description |
+|--------|-------------|
+| `date_str` | Transaction date (YYYY-MM-DD) |
+| `product_category` | Beverages / Snacks / Dairy / Frozen Foods / Personal Care |
+| `product_line` | Premium / Standard / Economy |
+| `price_per_unit` | Own product price ($) |
+| `competitor_price` | Nearest competitor price ($) |
+| `units_sold` | Units sold in period |
+| `revenue` | Total revenue ($) |
+| `promotion_spend` | Promotional investment ($) |
+| `market_share` | Share of category volume (0–1) |
 
-**Alternative — run instantly in the cloud:** click the "Open In Colab" badge above.
+---
 
-## Data
-
-The analysis uses proprietary retail scanner data covering the top 5 meat substitute SKUs across Conagra's portfolio. Due to confidentiality the raw files are not included in this repository. The notebook documents every transformation step so the pipeline can be applied to any similarly structured retail dataset.
-
-| File | Description |
-|------|-------------|
-| `Top_5_Meat_Substitute_With_Category_Info.xlsx` | Source data: product attributes, brand, season, promotional channel volumes |
-| `One_Hot_Encoded_File.csv` | Intermediate: one-hot encoded categorical features |
-| `Final Data.csv` | Modeling-ready table including derived `% Change in Sales due to merch` column |
-
-## Author
-
-**Sai Teja KMVP**
-Master's in Business Analytics & AI — University of Texas at Dallas
-
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-Connect-0A66C2?logo=linkedin)](https://www.linkedin.com/in/saitejakmvp/)
-[![GitHub](https://img.shields.io/badge/GitHub-SaiTejaPortfolioDS-181717?logo=github)](https://github.com/SaiTejaPortfolioDS)
+## File Structure
